@@ -1,4 +1,7 @@
 const express = require('express');
+require('express-async-errors');
+const talkerRoutes = require('./routes/talkerRoutes');
+const { handleError } = require('./helpers/utils');
 
 const app = express();
 app.use(express.json());
@@ -14,3 +17,7 @@ app.get('/', (_request, response) => {
 app.listen(PORT, () => {
   console.log('Online');
 });
+
+app.use('/talker', talkerRoutes);
+
+app.use(handleError);
