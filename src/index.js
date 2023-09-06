@@ -1,6 +1,7 @@
 const express = require('express');
 require('express-async-errors');
 const talkerRoutes = require('./routes/talkerRoutes');
+const loginRoutes = require('./routes/loginRoutes');
 const { handleError } = require('./helpers/utils');
 
 const app = express();
@@ -19,5 +20,6 @@ app.listen(PORT, () => {
 });
 
 app.use('/talker', talkerRoutes);
+app.use('/login', loginRoutes);
 
 app.use(handleError);

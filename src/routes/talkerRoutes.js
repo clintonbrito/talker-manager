@@ -2,13 +2,13 @@ const express = require('express');
 const { readFile } = require('../helpers/utils');
 const { validateTalkerById } = require('../middlewares/validateTalker');
 
-const router = express.Router();
-
 const HTTP_OK_STATUS = 200;
+
+const talkerRouter = express.Router();
 
 // Req 1: create the endpoint GET /talker to return the list of talkers registered in talker.json.
 
-router.get('/', async (_req, res) => {
+talkerRouter.get('/', async (_req, res) => {
   const talkers = await readFile();
   if (!talkers) {
     return res.status(HTTP_OK_STATUS).json([]);
@@ -18,7 +18,7 @@ router.get('/', async (_req, res) => {
 
 // Req 2: create the endpoint GET /talker/:id to return the talker with the given id.
 
-router.get('/:id', validateTalkerById, async (req, res) => {
+talkerRouter.get('/:id', validateTalkerById, async (req, res) => {
   try {
     const { id } = req.params;
     const talkers = await readFile();
@@ -29,4 +29,4 @@ router.get('/:id', validateTalkerById, async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = talkerRouter;

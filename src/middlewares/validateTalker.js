@@ -11,6 +11,16 @@ const validateTalkerById = async (req, res, next) => {
   next();
 };
 
+// const validateTalkerByEmail = async (req, res, next) => {
+//   const { email } = req.body;
+//   const talkers = await readFile();
+//   const talkerEmail = talkers.find((talker) => talker.email === email);
+//   if (talkerEmail) {
+//     return res.status(409).json({ message: 'O e-mail deve ser único' });
+//   }
+//   next();
+// };
+
 module.exports = {
   validateTalkerById,
 };
