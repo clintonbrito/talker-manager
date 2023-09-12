@@ -14,9 +14,8 @@ const readFile = async () => {
 
 const handleError = (err, _req, res, _next) => {
   console.error(err.message);
-  return res.status(err.cause).json({
-    message: err.message,
-  });
+  const statusCode = err.cause ? err.cause : 500;
+  return res.status(statusCode).json({ message: err.message });
 };
 
 module.exports = {
