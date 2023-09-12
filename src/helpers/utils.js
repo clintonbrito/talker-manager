@@ -18,6 +18,11 @@ const handleError = (err, _req, res, _next) => {
   return res.status(statusCode).json({ message: err.message });
 };
 
+// app.use((err, req, res, next) => {
+//   const { status, message } = err;
+//   res.status(status).json({ message });
+// });
+
 module.exports = {
   readFile,
   handleError,

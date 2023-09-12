@@ -1,6 +1,6 @@
 const express = require('express');
 const { readFile } = require('../helpers/utils');
-const { validateTalkerById } = require('../middlewares/validateTalker');
+const validateTalkerById = require('../middlewares/validateTalker');
 
 const HTTP_OK_STATUS = 200;
 
