@@ -7,7 +7,6 @@ const validateTalk = require('../middlewares/validateTalk');
 const validateRate = require('../middlewares/validateRate');
 const validateWatchedAt = require('../middlewares/validateWatchedAt');
 const validateToken = require('../middlewares/validateToken');
-const validateTalker = require('../middlewares/validateTalker');
 const registerNewTalker = require('../middlewares/registerNewTalker');
 
 const HTTP_OK_STATUS = 200;
@@ -42,13 +41,12 @@ talkerRouter.get('/:id', validateTalkerById, async (req, res) => {
 
 talkerRouter.post(
   '/',
+  validateToken,
   validateName,
   validateAge,
+  validateTalk,
   validateRate,
   validateWatchedAt,
-  validateToken,
-  validateTalk,
-  validateTalker,
   registerNewTalker,
   async (req, res) => {
     const talkers = await readFile();
