@@ -11,6 +11,7 @@ const registerNewTalker = require('../middlewares/registerNewTalker');
 
 const HTTP_OK_STATUS = 200;
 const HTTP_CREATED_STATUS = 201;
+const HTTP_DELETED_STATUS = 204;
 const HTTP_NOT_FOUND_STATUS = 404;
 
 const talkerRouter = express.Router();
@@ -95,5 +96,20 @@ talkerRouter.put(
     return res.status(HTTP_OK_STATUS).json(updatedTalker);
   },
 );
+
+// Req 7: create the endpoint DELETE /talker/:id to delete a talker in talker.json.
+talkerRouter.delete('/:id', validateToken, async (req, res) => {
+  const { id } = req.params;
+  const talkers = await readFile();
+  const talkerIndex = talkers.findIndex((talker) => talker.id === Number(id));
+  // When the talker is not found by id, return an error:
+  if (!talkerIndex || talkerIndex === -1) {
+    return res.status(HTTP_NOT_FOUND_STATUS)
+      .json({ message: 'Pessoa palestrante não encontrada' });
+  }
+  talkers.splice(talkerIndex, 1);
+  await writeFile(talkers);
+  return res.status(HTTP_DELETED_STATUS).end();
+});
 
 module.exports = talkerRouter;
