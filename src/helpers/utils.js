@@ -12,6 +12,14 @@ const readFile = async () => {
   }
 };
 
+const writeFile = async (talkers) => {
+  try {
+    await fs.writeFile(talkersPath, JSON.stringify(talkers));
+  } catch (err) {
+    throw new Error(`Could not write file: ${err.message}`);
+  }
+};
+
 const handleError = (err, _req, res, _next) => {
   console.error(err.message);
   const statusCode = err.cause ? err.cause : 500;
@@ -25,5 +33,6 @@ const handleError = (err, _req, res, _next) => {
 
 module.exports = {
   readFile,
+  writeFile,
   handleError,
 };

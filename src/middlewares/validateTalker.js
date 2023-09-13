@@ -1,6 +1,6 @@
 const { readFile } = require('../helpers/utils');
 
-const validateTalkerById = async (req, res, next) => {
+const validateTalker = async (req, res, next) => {
   const { id } = req.params;
   const talkers = await readFile();
   const talkerId = talkers.find((talker) => talker.id === Number(id));
@@ -10,4 +10,4 @@ const validateTalkerById = async (req, res, next) => {
   next();
 };
 
-module.exports = validateTalkerById;
+module.exports = validateTalker;
