@@ -11,6 +11,7 @@ const registerNewTalker = require('../middlewares/registerNewTalker');
 
 const HTTP_OK_STATUS = 200;
 const HTTP_CREATED_STATUS = 201;
+const HTTP_NOT_FOUND_STATUS = 404;
 
 const talkerRouter = express.Router();
 
@@ -60,6 +61,38 @@ talkerRouter.post(
     talkers.push(newTalker);
     await writeFile(talkers);
     return res.status(HTTP_CREATED_STATUS).json(newTalker);
+  },
+);
+
+// Req 6: create the endpoint PUT /talker/:id to update a talker in talker.json.
+
+talkerRouter.put(
+  '/:id',
+  validateToken,
+  validateName,
+  validateAge,
+  validateTalk,
+  validateRate,
+  validateWatchedAt,
+  async (req, res) => {
+    const { id } = req.params;
+    const talkers = await readFile();
+    const { name, age, talk } = req.body;
+    const talkerIndex = talkers.findIndex((talker) => talker.id === Number(id));
+    const updatedTalker = {
+      id: Number(id),
+      name,
+      age,
+      talk,
+    };
+    // When the talker is not found by id, return an error:
+    if (!talkerIndex || talkerIndex === -1) {
+      return res.status(HTTP_NOT_FOUND_STATUS)
+        .json({ message: 'Pessoa palestrante não encontrada' });
+    }
+    talkers[talkerIndex] = updatedTalker;
+    await writeFile(talkers);
+    return res.status(HTTP_OK_STATUS).json(updatedTalker);
   },
 );
 
