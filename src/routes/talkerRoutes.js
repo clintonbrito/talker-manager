@@ -1,12 +1,12 @@
 const express = require('express');
 const { readFile, writeFile } = require('../helpers/utils');
 const validateTalkerById = require('../middlewares/validateTalker');
+const validateToken = require('../middlewares/validateToken');
 const validateName = require('../middlewares/validateName');
 const validateAge = require('../middlewares/validateAge');
 const validateTalk = require('../middlewares/validateTalk');
 const validateRate = require('../middlewares/validateRate');
 const validateWatchedAt = require('../middlewares/validateWatchedAt');
-const validateToken = require('../middlewares/validateToken');
 const registerNewTalker = require('../middlewares/registerNewTalker');
 
 const HTTP_OK_STATUS = 200;
@@ -24,19 +24,6 @@ talkerRouter.get('/', async (_req, res) => {
     return res.status(HTTP_OK_STATUS).json([]);
   }
     return res.status(HTTP_OK_STATUS).json(talkers);
-});
-
-// Req 2: create the endpoint GET /talker/:id to return the talker with the given id.
-
-talkerRouter.get('/:id', validateTalkerById, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const talkers = await readFile();
-    const talkerId = talkers.find((talker) => talker.id === Number(id));
-    return res.status(HTTP_OK_STATUS).json(talkerId);
-  } catch (err) {
-    throw new Error(`Could not find talker: ${err.message}`);
-  }
 });
 
 // Req 5: create the endpoint POST /talker to register a new talker in talker.json.
@@ -98,6 +85,7 @@ talkerRouter.put(
 );
 
 // Req 7: create the endpoint DELETE /talker/:id to delete a talker in talker.json.
+
 talkerRouter.delete('/:id', validateToken, async (req, res) => {
   const { id } = req.params;
   const talkers = await readFile();
@@ -110,6 +98,39 @@ talkerRouter.delete('/:id', validateToken, async (req, res) => {
   talkers.splice(talkerIndex, 1);
   await writeFile(talkers);
   return res.status(HTTP_DELETED_STATUS).end();
+});
+
+// Req 8: create the endpoint GET /talker/search?q=searchTerm to search talkers by name.
+
+talkerRouter.get('/search', validateToken, async (req, res) => {
+  const { q } = req.query;
+  const talkers = await readFile();
+
+  if (!q || q === '') {
+    return res.status(HTTP_OK_STATUS).json(talkers);
+  }
+
+  const talkersByName = talkers
+    .filter((talker) => talker.name.toLowerCase().includes(q.toLowerCase()));
+
+  if (!talkersByName.length) {
+    return res.status(HTTP_OK_STATUS).json([]);
+  }
+
+  return res.status(HTTP_OK_STATUS).json(talkersByName);
+});
+
+// Req 2: create the endpoint GET /talker/:id to return the talker with the given id.
+
+talkerRouter.get('/:id', validateTalkerById, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const talkers = await readFile();
+    const talkerId = talkers.find((talker) => talker.id === Number(id));
+    return res.status(HTTP_OK_STATUS).json(talkerId);
+  } catch (err) {
+    throw new Error(`Could not find talker: ${err.message}`);
+  }
 });
 
 module.exports = talkerRouter;
