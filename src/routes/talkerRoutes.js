@@ -8,6 +8,7 @@ const validateTalk = require('../middlewares/validateTalk');
 const validateRate = require('../middlewares/validateRate');
 const validateWatchedAt = require('../middlewares/validateWatchedAt');
 const registerNewTalker = require('../middlewares/registerNewTalker');
+const filterTalkersByName = require('../middlewares/filterTalkersByName');
 
 const HTTP_OK_STATUS = 200;
 const HTTP_CREATED_STATUS = 201;
@@ -119,6 +120,34 @@ talkerRouter.get('/search', validateToken, async (req, res) => {
 
   return res.status(HTTP_OK_STATUS).json(talkersByName);
 });
+
+// Req 9: create the endpoint GET /talker/search?rate=rateNumber to search talkers by rate.
+
+talkerRouter.get(
+  '/search',
+  validateToken,
+  validateRate,
+  validateWatchedAt,
+  async (req, res) => {
+  const { rate, q } = req.query;
+  const talkers = await readFile();
+
+  const filteredByName = filterTalkersByName(talkers, q);
+
+  if (!rate) {
+    return res.status(HTTP_OK_STATUS).json(filteredByName);
+  }
+
+  const filteredTalkers = filteredByName
+    .filter((talker) => talker.rate === Number(rate));
+
+  if (!filteredTalkers.length) {
+    return res.status(HTTP_OK_STATUS).json([]);
+  }
+
+  return res.status(HTTP_OK_STATUS).json(filteredTalkers);
+},
+);
 
 // Req 2: create the endpoint GET /talker/:id to return the talker with the given id.
 
