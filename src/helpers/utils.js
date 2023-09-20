@@ -21,7 +21,7 @@ const writeFile = async (talkers) => {
 };
 
 const handleError = (err, _req, res, _next) => {
-  console.error(err.message);
+  console.error(err);
   const statusCode = err.cause ? err.cause : 500;
   return res.status(statusCode).json({ message: err.message });
 };

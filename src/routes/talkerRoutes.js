@@ -10,6 +10,9 @@ const validateWatchedAt = require('../middlewares/validateWatchedAt');
 const registerNewTalker = require('../middlewares/registerNewTalker');
 const filterTalkersByName = require('../middlewares/filterTalkersByName');
 const filterTalkersByRate = require('../middlewares/filterTalkersByRate');
+const validateRateSearch = require('../middlewares/validateRateSearch');
+const validateRateAndQuery = require('../middlewares/validateRateAndQuery');
+const filterByNameAndRate = require('../middlewares/filterByNameAndRate');
 
 const HTTP_OK_STATUS = 200;
 const HTTP_CREATED_STATUS = 201;
@@ -17,16 +20,6 @@ const HTTP_DELETED_STATUS = 204;
 const HTTP_NOT_FOUND_STATUS = 404;
 
 const talkerRouter = express.Router();
-
-// Req 1: create the endpoint GET /talker to return the list of talkers registered in talker.json.
-
-talkerRouter.get('/', async (_req, res) => {
-  const talkers = await readFile();
-  if (!talkers) {
-    return res.status(HTTP_OK_STATUS).json([]);
-  }
-    return res.status(HTTP_OK_STATUS).json(talkers);
-});
 
 // Req 5: create the endpoint POST /talker to register a new talker in talker.json.
 
@@ -107,41 +100,37 @@ talkerRouter.delete('/:id', validateToken, async (req, res) => {
 talkerRouter.get(
   '/search',
   validateToken,
-  validateRate,
-  // eslint-disable-next-line max-lines-per-function, complexity
+  validateRateSearch,
+  validateRateAndQuery,
+  filterByNameAndRate,
   async (req, res) => {
   const { rate, q } = req.query;
+  const rateNumber = Number(rate);
   const talkers = await readFile();
 
   const filteredByName = filterTalkersByName(talkers, q);
   const filteredByRate = filterTalkersByRate(talkers, rate);
 
-  if (!rate && !q) {
-    return res.status(HTTP_OK_STATUS).json(talkers);
-  }
-
-  if (rate === '' && q === '') {
-    return res.status(HTTP_OK_STATUS).json(talkers);
-  }
-
-  if (!rate) {
+  if (q) {
     return res.status(HTTP_OK_STATUS).json(filteredByName);
   }
-
-  if (!q) {
+  if (rateNumber) {
     return res.status(HTTP_OK_STATUS).json(filteredByRate);
   }
-
-  const filteredTalkers = filteredByName
-    .filter((talker) => talker.rate === Number(rate));
-
-  if (!filteredTalkers.length) {
-    return res.status(HTTP_OK_STATUS).json([]);
-  }
-
-  return res.status(HTTP_OK_STATUS).json(filteredTalkers);
+  
+  return res.status(HTTP_OK_STATUS).json(talkers); 
 },
 );
+
+// Req 1: create the endpoint GET /talker to return the list of talkers registered in talker.json.
+
+talkerRouter.get('/', async (_req, res) => {
+  const talkers = await readFile();
+  if (!talkers) {
+    return res.status(HTTP_OK_STATUS).json([]);
+  }
+    return res.status(HTTP_OK_STATUS).json(talkers);
+});
 
 // Req 2: create the endpoint GET /talker/:id to return the talker with the given id.
 
