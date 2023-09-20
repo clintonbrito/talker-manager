@@ -9,6 +9,7 @@ const validateRate = require('../middlewares/validateRate');
 const validateWatchedAt = require('../middlewares/validateWatchedAt');
 const registerNewTalker = require('../middlewares/registerNewTalker');
 const filterTalkersByName = require('../middlewares/filterTalkersByName');
+const filterTalkersByRate = require('../middlewares/filterTalkersByRate');
 
 const HTTP_OK_STATUS = 200;
 const HTTP_CREATED_STATUS = 201;
@@ -101,41 +102,34 @@ talkerRouter.delete('/:id', validateToken, async (req, res) => {
   return res.status(HTTP_DELETED_STATUS).end();
 });
 
-// Req 8: create the endpoint GET /talker/search?q=searchTerm to search talkers by name.
-
-talkerRouter.get('/search', validateToken, async (req, res) => {
-  const { q } = req.query;
-  const talkers = await readFile();
-
-  if (!q || q === '') {
-    return res.status(HTTP_OK_STATUS).json(talkers);
-  }
-
-  const talkersByName = talkers
-    .filter((talker) => talker.name.toLowerCase().includes(q.toLowerCase()));
-
-  if (!talkersByName.length) {
-    return res.status(HTTP_OK_STATUS).json([]);
-  }
-
-  return res.status(HTTP_OK_STATUS).json(talkersByName);
-});
-
-// Req 9: create the endpoint GET /talker/search?rate=rateNumber to search talkers by rate.
+// Req 8 and 9: create the endpoint GET /talker/search?q=searchTerm to search talkers by name and create the endpoint GET /talker/search?rate=rateNumber to search talkers by rate at the same time.
 
 talkerRouter.get(
   '/search',
   validateToken,
   validateRate,
-  validateWatchedAt,
+  // eslint-disable-next-line max-lines-per-function, complexity
   async (req, res) => {
   const { rate, q } = req.query;
   const talkers = await readFile();
 
   const filteredByName = filterTalkersByName(talkers, q);
+  const filteredByRate = filterTalkersByRate(talkers, rate);
+
+  if (!rate && !q) {
+    return res.status(HTTP_OK_STATUS).json(talkers);
+  }
+
+  if (rate === '' && q === '') {
+    return res.status(HTTP_OK_STATUS).json(talkers);
+  }
 
   if (!rate) {
     return res.status(HTTP_OK_STATUS).json(filteredByName);
+  }
+
+  if (!q) {
+    return res.status(HTTP_OK_STATUS).json(filteredByRate);
   }
 
   const filteredTalkers = filteredByName
