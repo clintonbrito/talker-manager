@@ -12,7 +12,9 @@ const filterTalkersByName = require('../middlewares/filterTalkersByName');
 const filterTalkersByRate = require('../middlewares/filterTalkersByRate');
 const validateRateSearch = require('../middlewares/validateRateSearch');
 const validateRateAndQuery = require('../middlewares/validateRateAndQuery');
-const filterByNameAndRate = require('../middlewares/filterByNameAndRate');
+const filterTalkersByDate = require('../middlewares/filterTalkersByDate');
+const filterByNameRateAndDate = require('../middlewares/filterByNameRateAndDate');
+const validateDateSearch = require('../middlewares/validateDateSearch');
 
 const HTTP_OK_STATUS = 200;
 const HTTP_CREATED_STATUS = 201;
@@ -95,21 +97,24 @@ talkerRouter.delete('/:id', validateToken, async (req, res) => {
   return res.status(HTTP_DELETED_STATUS).end();
 });
 
-// Req 8 and 9: create the endpoint GET /talker/search?q=searchTerm to search talkers by name and create the endpoint GET /talker/search?rate=rateNumber to search talkers by rate at the same time.
+// Req 8, 9 and 10: create the endpoint GET /talker/search?q=searchTerm to search talkers by name, the endpoint GET /talker/search?rate=rateNumber to search talkers by rate at the same time and the endpoint GET /talker/search?date=DD/MM/YYYY to search talkers by watchedAt date at the same time.
 
 talkerRouter.get(
   '/search',
   validateToken,
   validateRateSearch,
   validateRateAndQuery,
-  filterByNameAndRate,
+  filterByNameRateAndDate,
+  // validateDate,
+  validateDateSearch,
   async (req, res) => {
-  const { rate, q } = req.query;
+  const { rate, q, date } = req.query;
   const rateNumber = Number(rate);
   const talkers = await readFile();
 
   const filteredByName = filterTalkersByName(talkers, q);
   const filteredByRate = filterTalkersByRate(talkers, rate);
+  const filteredByDate = filterTalkersByDate(talkers, date);
 
   if (q) {
     return res.status(HTTP_OK_STATUS).json(filteredByName);
@@ -117,7 +122,9 @@ talkerRouter.get(
   if (rateNumber) {
     return res.status(HTTP_OK_STATUS).json(filteredByRate);
   }
-  
+  if (date) {
+    return res.status(HTTP_OK_STATUS).json(filteredByDate);
+  }
   return res.status(HTTP_OK_STATUS).json(talkers); 
 },
 );
