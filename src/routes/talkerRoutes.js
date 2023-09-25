@@ -99,6 +99,7 @@ talkerRouter.delete('/:id', validateToken, async (req, res) => {
 });
 
 // Req 8, 9 and 10: create the endpoint GET /talker/search?q=searchTerm to search talkers by name, the endpoint GET /talker/search?rate=rateNumber to search talkers by rate at the same time and the endpoint GET /talker/search?date=DD/MM/YYYY to search talkers by watchedAt date at the same time.
+// These three requirements were made with the valuable contributions of Paulinha Carlos, Gabriel "Coruja" and Thiago Vallim during multiple mentoring sessions.
 
 talkerRouter.get(
   '/search',
@@ -108,7 +109,6 @@ talkerRouter.get(
   // filterByNameRateAndDate,
   // validateDate,
   validateDateSearch,
-  // eslint-disable-next-line complexity, max-lines-per-function
   async (req, res) => {
   const { rate, q, date } = req.query;
   const rateNumber = Number(rate);
@@ -131,6 +131,7 @@ talkerRouter.get(
 );
 
 // Req 11: create the endpoint PATCH /talker/rate/:id to update a talker's rate in talker.json without changing its id.
+// This requirement was made with the valuable contributions of Henrique Baêta during a mentoring session.
 
 talkerRouter.patch(
   '/rate/:id',
