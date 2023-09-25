@@ -13,7 +13,7 @@ const filterTalkersByRate = require('../middlewares/filterTalkersByRate');
 const validateRateSearch = require('../middlewares/validateRateSearch');
 const validateRateAndQuery = require('../middlewares/validateRateAndQuery');
 const filterTalkersByDate = require('../middlewares/filterTalkersByDate');
-const filterByNameRateAndDate = require('../middlewares/filterByNameRateAndDate');
+// const filterByNameRateAndDate = require('../middlewares/filterByNameRateAndDate');
 const validateDateSearch = require('../middlewares/validateDateSearch');
 
 const HTTP_OK_STATUS = 200;
@@ -104,27 +104,27 @@ talkerRouter.get(
   validateToken,
   validateRateSearch,
   validateRateAndQuery,
-  filterByNameRateAndDate,
+  // filterByNameRateAndDate,
   // validateDate,
   validateDateSearch,
+  // eslint-disable-next-line complexity, max-lines-per-function
   async (req, res) => {
   const { rate, q, date } = req.query;
   const rateNumber = Number(rate);
-  const talkers = await readFile();
-
-  const filteredByName = filterTalkersByName(talkers, q);
-  const filteredByRate = filterTalkersByRate(talkers, rate);
-  const filteredByDate = filterTalkersByDate(talkers, date);
+  let talkers = await readFile();
 
   if (q) {
-    return res.status(HTTP_OK_STATUS).json(filteredByName);
+    talkers = filterTalkersByName(talkers, q);
   }
+
   if (rateNumber) {
-    return res.status(HTTP_OK_STATUS).json(filteredByRate);
+    talkers = filterTalkersByRate(talkers, rateNumber);
   }
+
   if (date) {
-    return res.status(HTTP_OK_STATUS).json(filteredByDate);
+    talkers = filterTalkersByDate(talkers, date);
   }
+
   return res.status(HTTP_OK_STATUS).json(talkers); 
 },
 );
