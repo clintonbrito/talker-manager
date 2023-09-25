@@ -15,10 +15,11 @@ const validateRateAndQuery = require('../middlewares/validateRateAndQuery');
 const filterTalkersByDate = require('../middlewares/filterTalkersByDate');
 // const filterByNameRateAndDate = require('../middlewares/filterByNameRateAndDate');
 const validateDateSearch = require('../middlewares/validateDateSearch');
+const validateRateForPatch = require('../middlewares/validateRateForPatch');
 
 const HTTP_OK_STATUS = 200;
 const HTTP_CREATED_STATUS = 201;
-const HTTP_DELETED_STATUS = 204;
+const HTTP_NO_CONTENT = 204;
 const HTTP_NOT_FOUND_STATUS = 404;
 
 const talkerRouter = express.Router();
@@ -94,7 +95,7 @@ talkerRouter.delete('/:id', validateToken, async (req, res) => {
   }
   talkers.splice(talkerIndex, 1);
   await writeFile(talkers);
-  return res.status(HTTP_DELETED_STATUS).end();
+  return res.status(HTTP_NO_CONTENT).end();
 });
 
 // Req 8, 9 and 10: create the endpoint GET /talker/search?q=searchTerm to search talkers by name, the endpoint GET /talker/search?rate=rateNumber to search talkers by rate at the same time and the endpoint GET /talker/search?date=DD/MM/YYYY to search talkers by watchedAt date at the same time.
@@ -127,6 +128,30 @@ talkerRouter.get(
 
   return res.status(HTTP_OK_STATUS).json(talkers); 
 },
+);
+
+// Req 11: create the endpoint PATCH /talker/rate/:id to update a talker's rate in talker.json without changing its id.
+
+talkerRouter.patch(
+  '/rate/:id',
+  validateToken,
+  validateRateForPatch,
+  async (req, res) => {
+    const { id } = req.params;
+    const { rate } = req.body;
+
+    const talkers = await readFile();
+    const talkerIndex = talkers.findIndex((talker) => talker.id === Number(id));
+    console.log(talkerIndex);
+    // When the talker is not found by id, return an error:
+    if (talkerIndex === -1) {
+      return res.status(HTTP_NOT_FOUND_STATUS)
+        .json({ message: 'Pessoa palestrante não encontrada' });
+    }
+    talkers[talkerIndex].talk.rate = rate;
+    await writeFile(talkers);
+    return res.status(HTTP_NO_CONTENT).end();
+  },
 );
 
 // Req 1: create the endpoint GET /talker to return the list of talkers registered in talker.json.
